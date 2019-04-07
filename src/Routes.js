@@ -1,9 +1,9 @@
-import 'babel-polyfill';
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Route, BrowserRouter } from 'react-router-dom';
+import "babel-polyfill";
+import React, { Component } from "react";
+import ReactDOM from "react-dom";
+import { Route, BrowserRouter } from "react-router-dom";
 // Our application routes
-import App from './components/App';
+import App from "./components/App/App.jsx";
 import Dashboard from "./components/Dashboard";
 import ArtistAlbums from "./components/ArtistAlbums";
 import AlbumTracks from "./components/AlbumTracks";
@@ -38,40 +38,37 @@ const appRoutes = [
 ];
 
 class Routes extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
 
-    constructor(props) {
-        super(props);
-        this.state = {
+  renderRoutes = routes => {
+    let allRoutes = [];
+    routes.map((route, index) => {
+      let exact = route.exact ? true : false;
+      allRoutes.push(
+        <Route
+          exact={exact}
+          path={route.path}
+          component={route.component}
+          key={index}
+          {...this.props}
+        />
+      );
+    });
+    return allRoutes;
+  };
 
-        };
-    }
-
-    renderRoutes = (routes) => {
-        let allRoutes = [];
-        routes.map((route,index) => {
-            let exact = route.exact ? true : false;
-            allRoutes.push(
-                <Route 
-                    exact={exact}
-                    path={route.path}
-                    component={route.component}
-                    key={index}
-                    {...this.props}
-                />
-            );
-        })
-        return allRoutes;
-    }
-
-    render(){
-        return <div>{this.renderRoutes(appRoutes)}</div>
-    }
+  render() {
+    return <div>{this.renderRoutes(appRoutes)}</div>;
+  }
 }
 
 // Render App to DOM
 ReactDOM.render(
-    <BrowserRouter>
-        <Routes />
-    </BrowserRouter>, 
-    document.getElementById('react-spotify')
+  <BrowserRouter>
+    <Routes />
+  </BrowserRouter>,
+  document.getElementById("react-spotify")
 );

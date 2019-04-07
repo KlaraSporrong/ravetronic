@@ -16,5 +16,5 @@ SERVER.app.get("/*", SERVER.static);
 
 // Start server
 SERVER.app.listen(SERVER.port, () => {
-  console.log(`Port ${SERVER.port} is lit fam 🔥 🔥 🔥`);
+  console.log(`Server running on port ${SERVER.port}`);
 });

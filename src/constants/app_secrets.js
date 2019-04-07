@@ -1,7 +1,5 @@
-let prod = true;
-
 const scopes =
-  "user-read-private+user-read-email+playlist-read-private+user-top-read+user-read-recently-played";
+  "user-read-private+user-read-email+playlist-read-private+user-read-birthdate+user-top-read+user-read-recently-played+streaming";
 const redirectURI =
   process.env.NODE_ENV === "production"
     ? "https://ravetronic.herokuapp.com/"
