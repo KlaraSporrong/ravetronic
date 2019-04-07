@@ -1,13 +1,6 @@
 import React, { Component } from "react";
-import jsonp from "jsonp";
 import axios from "axios";
-import {
-  spotifyWebApiURL,
-  clientID,
-  redirectURI,
-  clientSecret,
-  spotifyProfileURL
-} from "../../constants";
+import { spotifyWebApiURL, spotifyProfileURL } from "../../constants";
 
 export default class App extends Component {
   constructor(props) {
