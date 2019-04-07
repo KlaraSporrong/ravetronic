@@ -59,7 +59,7 @@ export default class App extends Component {
           <div className="col-12">
             <h3 className="display-4">
               {this.state.value}
-              <small className="text-muted"> HEJ</small>
+              <small className="text-muted"> HALLÅ</small>
             </h3>
             <hr className="my-4" />
           </div>
