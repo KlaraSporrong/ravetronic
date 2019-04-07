@@ -34,20 +34,25 @@ export default class App extends Component {
 
   handleAuthFlow = event => {
     event.preventDefault();
-   
+
     if (this.state.authorized) {
       const { authToken } = this.state;
       let user;
       axios
         .get(spotifyProfileURL + authToken)
         .then(response => {
-            this.setState({ profile: response.data });
-            user = response.data;
+          this.setState({ profile: response.data });
+          user = response.data;
         })
-        .then(() => this.props.history.push('/react-spotify', { current_user: { user }, auth: { authToken } } ) )
+        .then(() =>
+          this.props.history.push("/react-spotify", {
+            current_user: { user },
+            auth: { authToken }
+          })
+        )
         .catch(error => {
-            console.log(error);
-            window.location.assign(spotifyWebApiURL);
+          console.log(error);
+          window.location.assign(spotifyWebApiURL);
         });
     } else {
       window.location.assign(spotifyWebApiURL);
@@ -61,10 +66,7 @@ export default class App extends Component {
           <div className="col-12">
             <h3 className="display-4">
               {this.state.value}
-              <small className="text-muted">
-                {" "}
-                a react app connected to the Spotify Web API{" "}
-              </small>
+              <small className="text-muted"> HEJ</small>
             </h3>
             <hr className="my-4" />
           </div>
