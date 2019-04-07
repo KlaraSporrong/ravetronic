@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "NODE_ENV=\"production\" webpack --optimize-minimize",
     "dev:server": "node index.js",
-    "dev:start": "webpack-dev-server --watch",
+    "dev:start": "NODE_ENV=\"development\" webpack-dev-server  --watch ",
     "start": "npm-run-all --parallel dev:start"
   },
   "author": "",

@@ -14,6 +14,7 @@ export default class App extends Component {
   }
 
   componentDidMount = () => {
+    console.log(process.env.NODE_ENV);
     let url = window.location.href;
     if (url.indexOf("token=") > -1) {
       let authToken = url
