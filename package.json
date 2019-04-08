@@ -1,7 +1,7 @@
 {
-  "name": "element-mic-2017",
+  "name": "ravetronic",
   "version": "1.0.0",
-  "description": "Element Make It Count 2017 Voting Platform",
+  "description": "Ravetronic app",
   "main": "index.js",
   "engines": {
     "node": "10.9.0"
@@ -21,6 +21,7 @@
     "dotenv": "^4.0.0",
     "express": "^4.14.1",
     "jsonp": "^0.2.1",
+    "lodash": "^4.17.11",
     "nodemon": "^1.18.10",
     "path": "^0.12.7",
     "react-player": "^0.25.3",
