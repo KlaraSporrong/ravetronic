@@ -1,6 +1,23 @@
 import React, { Component } from "react";
 import { spotifyWebApiURL, spotifyProfileURL } from "../../constants";
 import axios from "axios";
+import { isEmpty } from "lodash";
+
+const keyMap = {
+  "-1": "No pitch",
+  0: "C",
+  1: "C#",
+  2: "D",
+  3: "D#",
+  4: "E",
+  5: "F",
+  6: "F#",
+  7: "G",
+  8: "G#",
+  9: "A",
+  10: "A#",
+  11: "B"
+};
 
 export default class App extends Component {
   constructor(props) {
@@ -11,7 +28,9 @@ export default class App extends Component {
       authorized: false,
       profile: [],
       deviceId: null,
-      user: {}
+      user: {},
+      trackData: {},
+      trackSections: []
     };
 
     this.playerCheckInterval = null;
@@ -37,7 +56,7 @@ export default class App extends Component {
 
     if (window.Spotify !== null && this.state.authToken) {
       this.player = new window.Spotify.Player({
-        name: "Klaras Spotify Player",
+        name: "RaveTronic",
         getOAuthToken: cb => {
           cb(authToken);
         }
@@ -68,8 +87,18 @@ export default class App extends Component {
     });
 
     // Playback status updates
-    this.player.on("player_state_changed", state => {
+    this.player.on("player_state_changed", async state => {
       console.log(state);
+      const resp = await axios.get(
+        `https://api.spotify.com/v1/audio-analysis/${
+          state.track_window.current_track.id
+        }?access_token=${this.state.authToken}`
+      );
+      console.log(resp.data);
+      this.setState({
+        trackData: resp.data.track,
+        trackSections: resp.data.sections
+      });
     });
 
     // Ready
@@ -121,6 +150,37 @@ export default class App extends Component {
     return <p className="display-5">User: {this.state.user.display_name}</p>;
   }
 
+  nextTrack = () => {
+    this.player.nextTrack().then(() => {
+      console.log("Skipped to next track!");
+    });
+  };
+
+  prevTrack = () => {
+    this.player.previousTrack().then(() => {
+      console.log("Skipped to next track!");
+    });
+  };
+
+  pauseTrack = () => {
+    this.player.pause().then(() => {
+      console.log("Skipped to next track!");
+    });
+  };
+
+  resumeTrack = () => {
+    this.player.resume().then(() => {
+      console.log("Skipped to next track!");
+    });
+  };
+
+  renderTrackSections = () => {
+    return this.state.trackSections.map((section, index) => (
+      <p className="display-5">{`Section ${index + 1} duration ${
+        section.duration
+      }`}</p>
+    ));
+  };
   render() {
     return (
       <div className="container mt-5">
@@ -150,6 +210,23 @@ export default class App extends Component {
               <p className="display-5">Device id: {this.state.deviceId}</p>
             )}
             {this.state.user && this.renderPlayback()}
+            <button onClick={this.prevTrack}>PREV</button>
+            <button onClick={this.nextTrack}>NEXT</button>
+            <button onClick={this.resumeTrack}>PLAY</button>
+            <button onClick={this.pauseTrack}>PAUSE</button>
+            <p className="display-5">
+              Duration: {this.state.trackData.duration}
+            </p>
+            <p className="display-5">Key: {keyMap[this.state.trackData.key]}</p>
+            <p className="display-5">Tempo: {this.state.trackData.tempo}</p>
+            <p className="display-5">
+              End of fade in: {this.state.trackData.end_of_fade_in}
+            </p>
+            <p className="display-5">
+              Start of fade out: {this.state.trackData.start_of_fade_out}
+            </p>
+            <h2 className="display-5">Track sections</h2>
+            <div>{this.renderTrackSections()}</div>
           </div>
         </div>
       </div>
