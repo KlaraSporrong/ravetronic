@@ -30,7 +30,8 @@ export default class App extends Component {
       deviceId: null,
       user: {},
       trackData: {},
-      trackSections: []
+      trackSections: [],
+      gifUrl: ""
     };
 
     this.playerCheckInterval = null;
@@ -181,6 +182,15 @@ export default class App extends Component {
       }`}</p>
     ));
   };
+
+  searchGif = async () => {
+    const searchTerm = "party";
+    const resp = await axios.get(
+      `https://api.giphy.com/v1/stickers/search?api_key=2xh1IKW6Nn65SDnbfcBbXuaCJXBXi1De&q=${searchTerm}`
+    );
+    console.log(resp);
+    this.setState({ gifUrl: resp.data.data[0].embed_url });
+  };
   render() {
     return (
       <div className="container mt-5">
@@ -209,7 +219,10 @@ export default class App extends Component {
             {this.state.deviceId && (
               <p className="display-5">Device id: {this.state.deviceId}</p>
             )}
+            <button onClick={this.searchGif}>Search GIF</button>
+            <img alt="gif" src={this.state.gifUrl} />
             {this.state.user && this.renderPlayback()}
+
             <button onClick={this.prevTrack}>PREV</button>
             <button onClick={this.nextTrack}>NEXT</button>
             <button onClick={this.resumeTrack}>PLAY</button>
