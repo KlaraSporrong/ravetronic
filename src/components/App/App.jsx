@@ -1,7 +1,66 @@
 import React, { Component } from "react";
-import { spotifyWebApiURL, spotifyProfileURL } from "../../constants";
+import styled from "styled-components";
+
+import {
+  spotifyWebApiURL,
+  spotifyProfileURL
+} from "../../constants/app_secrets";
 import axios from "axios";
-import { isEmpty } from "lodash";
+import P5Wrapper from "react-p5-wrapper";
+
+import sketch from "../sketch/sketch";
+
+import { createGlobalStyle } from "styled-components";
+
+const GlobalStyle = createGlobalStyle`
+  * {
+    font-family: Helvetica;
+  }
+  body {
+    padding: 0;
+    margin: 0;
+    background-color: #212121;
+    
+  }
+  p {
+    color: #e6e6e6;
+  }
+`;
+
+const Button = styled.button`
+  padding: 8px 24px;
+  border-radius: 60px;
+  font-size: 14px;
+  text-transform: uppercase;
+  outline: none;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+const Input = styled.input`
+  padding: 8px 12px;
+  border-radius: 4px;
+  border-style: none;
+  box-shadow: 0px 0px 0px 1px gray;
+  font-size: 14px;
+  outline: none;
+`;
+
+const H1 = styled.h1`
+  font-size: 48px;
+  color: white;
+`;
+
+const H2 = styled.h2`
+  font-size: 32px;
+  color: white;
+`;
+
+const AppContainer = styled.div`
+  padding: 20px;
+`;
 
 const keyMap = {
   "-1": "No pitch",
@@ -19,11 +78,10 @@ const keyMap = {
   11: "B"
 };
 
-export default class App extends Component {
+class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: "React Spotify",
       authToken: "",
       authorized: false,
       profile: [],
@@ -31,10 +89,14 @@ export default class App extends Component {
       user: {},
       trackData: {},
       trackSections: [],
-      gifUrl: ""
+      gifUrl: "",
+      gifUrls: [],
+      searchTerm: "",
+      rotation: 0
     };
 
     this.playerCheckInterval = null;
+    this.audioInputStreamInterval = null;
   }
 
   componentDidMount = () => {
@@ -47,11 +109,15 @@ export default class App extends Component {
         .trim();
       let authorized = true;
       this.setState({ authToken, authorized });
+      this.props.history.replace("/");
     }
 
     this.playerCheckInterval = setInterval(() => this.checkForPlayer(), 1000);
   };
-
+  componentWillUnmount() {
+    clearInterval(this.audioInputStreamInterval);
+    clearInterval(this.audioInputStreamInterval);
+  }
   checkForPlayer() {
     const { authToken } = this.state;
 
@@ -106,7 +172,7 @@ export default class App extends Component {
     this.player.on("ready", data => {
       let { device_id } = data;
       console.log("Let the music play on!");
-      this.getUserInfo();
+
       this.setState({ deviceId: device_id });
     });
   }
@@ -118,26 +184,7 @@ export default class App extends Component {
       window.location.assign(spotifyWebApiURL);
     }
     // if (this.state.authorized) {
-    //   const { authToken } = this.state;
-    //   let user;
-    //   axios
-    //     .get(spotifyProfileURL + authToken)
-    //     .then(response => {
-    //       this.setState({ profile: response.data });
-    //       user = response.data;
-    //     })
-    //     .then(() =>
-    //       this.props.history.push("/react-spotify", {
-    //         current_user: { user },
-    //         auth: { authToken }
-    //       })
-    //     )
-    //     .catch(error => {
-    //       console.log(error);
-    //       window.location.assign(spotifyWebApiURL);
-    //     });
-    // } else {
-    //   window.location.assign(spotifyWebApiURL);
+    //   this.getUserInfo();
     // }
   };
 
@@ -183,50 +230,89 @@ export default class App extends Component {
     ));
   };
 
-  searchGif = async () => {
-    const searchTerm = "party";
+  searchGifs = async () => {
+    if (!this.state.searchTerm) {
+      return;
+    }
     const resp = await axios.get(
-      `https://api.giphy.com/v1/stickers/search?api_key=2xh1IKW6Nn65SDnbfcBbXuaCJXBXi1De&q=${searchTerm}`
+      `https://api.giphy.com/v1/stickers/search?api_key=2xh1IKW6Nn65SDnbfcBbXuaCJXBXi1De&q=${
+        this.state.searchTerm
+      }`
     );
     console.log(resp);
-    this.setState({ gifUrl: resp.data.data[0].embed_url });
+    this.setState({
+      gifUrl: resp.data.data[0].images.original.url,
+      gifUrls: [...resp.data.data]
+    });
   };
+
+  getTrendingGifs = async () => {
+    const resp = await axios.get(
+      "https://api.giphy.com/v1/stickers/trending?api_key=2xh1IKW6Nn65SDnbfcBbXuaCJXBXi1De&limit=25&rating=G"
+    );
+    console.log(resp);
+    this.setState({
+      gifUrl: resp.data.data[0].images.original.url,
+      gifUrls: [...resp.data.data]
+    });
+  };
+
   render() {
     return (
-      <div className="container mt-5">
-        <div className="row">
-          <div className="col-12">
-            <h3 className="display-4">{this.state.value}</h3>
-            <hr className="my-4" />
-          </div>
-        </div>
+      <AppContainer>
+        <GlobalStyle />
+        <H1>RaveTronic</H1>
+
+        <P5Wrapper sketch={sketch} rotation={this.state.rotation} />
+        <Button
+          onClick={() => {
+            const rotation = this.state.rotation + 10;
+            console.log(rotation);
+            this.setState({ rotation });
+          }}
+        >
+          Rotate
+        </Button>
         <div className="row">
           <div className="col-12">
             <p className="display-5">
               {this.state.authorized
                 ? "Logged in"
-                : "Just click the button below to authorize your Spotify account to start using React Spotify!"}
+                : "Just click the Button below to authorize your Spotify account to start using React Spotify!"}
             </p>
             {!this.state.authorized && (
-              <button
+              <Button
                 type="button"
                 className="btn btn-outline-success"
                 onClick={this.handleAuthFlow}
               >
                 Sign in with Spotify
-              </button>
+              </Button>
             )}
             {this.state.deviceId && (
               <p className="display-5">Device id: {this.state.deviceId}</p>
             )}
-            <button onClick={this.searchGif}>Search GIF</button>
-            <img alt="gif" src={this.state.gifUrl} />
+            <Input
+              value={this.state.searchTerm}
+              onChange={event =>
+                this.setState({ searchTerm: event.target.value })
+              }
+            />
+            <Button onClick={this.searchGifs}>Search GIF</Button>
+            <Button onClick={this.getTrendingGifs}>Get trending gif</Button>
+            <Button onClick={() => this.setState({ gifUrls: [] })}>
+              Clear gifs
+            </Button>
+            {this.state.gifUrls.length &&
+              this.state.gifUrls.map(gif => (
+                <img key={gif.id} alt="gif" src={gif.images.original.url} />
+              ))}
             {this.state.user && this.renderPlayback()}
 
-            <button onClick={this.prevTrack}>PREV</button>
-            <button onClick={this.nextTrack}>NEXT</button>
-            <button onClick={this.resumeTrack}>PLAY</button>
-            <button onClick={this.pauseTrack}>PAUSE</button>
+            <Button onClick={this.prevTrack}>PREV</Button>
+            <Button onClick={this.nextTrack}>NEXT</Button>
+            <Button onClick={this.resumeTrack}>PLAY</Button>
+            <Button onClick={this.pauseTrack}>PAUSE</Button>
             <p className="display-5">
               Duration: {this.state.trackData.duration}
             </p>
@@ -238,11 +324,13 @@ export default class App extends Component {
             <p className="display-5">
               Start of fade out: {this.state.trackData.start_of_fade_out}
             </p>
-            <h2 className="display-5">Track sections</h2>
+            <H2 className="display-5">Track sections</H2>
             <div>{this.renderTrackSections()}</div>
           </div>
         </div>
-      </div>
+      </AppContainer>
     );
   }
 }
+
+export default App;
