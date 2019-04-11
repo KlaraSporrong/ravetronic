@@ -3,7 +3,7 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: path.resolve(__dirname, "src/Routes.js"),
+  entry: path.resolve(__dirname, "src/Routes.jsx"),
 
   output: {
     path: path.resolve(__dirname, "build"),
@@ -22,11 +22,16 @@ module.exports = {
         exclude: /(node_modules)/,
         loader: "babel-loader",
         options: {
-          presets: [["es2015", { modules: false }], "react"],
+          presets: ["@babel/preset-env", "@babel/preset-react"],
           plugins: [
-            "transform-object-rest-spread",
-            "transform-decorators-legacy",
-            "transform-class-properties"
+            ["@babel/plugin-proposal-object-rest-spread"],
+            ["@babel/plugin-proposal-class-properties"],
+            [
+              "@babel/plugin-proposal-decorators",
+              {
+                legacy: true
+              }
+            ]
           ]
         }
       },

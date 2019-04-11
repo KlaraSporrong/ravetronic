@@ -79,7 +79,11 @@ class Player extends React.Component {
     // Playback status updates
     this.player.on("player_state_changed", async state => {
       console.log(state);
-      this.getAudioAnalysis(state);
+      if (!state) {
+        this.setState({ trackData: {}, trackSections: [] });
+      } else {
+        this.getAudioAnalysis(state);
+      }
     });
 
     // Ready
@@ -129,7 +133,7 @@ class Player extends React.Component {
 
   renderTrackSections = () => {
     return this.state.trackSections.map((section, index) => (
-      <p className="display-5">{`Section ${index + 1} duration ${
+      <p key={index} className="display-5">{`Section ${index + 1} duration ${
         section.duration
       }`}</p>
     ));
