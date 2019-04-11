@@ -1,5 +1,6 @@
-# spotify-react
-spotify react is an app that uses react, and the spotify web api to connect to spotify and make calls to the api to get user playlist data and search spotify for artists, albums, and tracks.
+# RaveTronic
+
+RaveTronic is an app that uses react, and the spotify web api to connect to spotify and make calls to the api to get audio information about tracks.
 
 ## Installation
 
@@ -7,7 +8,6 @@ spotify react is an app that uses react, and the spotify web api to connect to s
 2. Install npm modules: `cd react-spotify npm i`
 3. Start webpack dev sever: `npm start`
 4. Your app should now be running on [localhost:8080](http://localhost:8080/).
-
 
 ## Deploying to Heroku
 
@@ -24,14 +24,13 @@ heroku open
 
 ## Built With
 
-* [React](https://reactjs.org/) - For UI views and client side routing
-* [Node](https://nodejs.org/en/) - For server
-* [Webpack](https://webpack.js.org/) - For dependency bundling
-* [Express](https://expressjs.com/) - Node server framework
-* [Bootstrap 4](https://v4-alpha.getbootstrap.com/) - For styling
-* [Spotify Web API](https://beta.developer.spotify.com/) - Spotify Web API
-
+- [React](https://reactjs.org/) - For UI views and client side routing
+- [Node](https://nodejs.org/en/) - For server
+- [Webpack](https://webpack.js.org/) - For dependency bundling
+- [Express](https://expressjs.com/) - Node server framework
+- [Spotify Web API](https://beta.developer.spotify.com/) - Spotify Web API
+- [Spotify Web Playback SDK](https://developer.spotify.com/documentation/web-playback-sdk/) - Spotify Web Playback SDK
 
 ## License
 
-This project is licensed under the MIT License 
+This project is licensed under the MIT License
