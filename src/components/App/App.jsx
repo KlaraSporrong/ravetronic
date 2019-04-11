@@ -1,56 +1,45 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 
-import { isEmpty } from "lodash";
+import p5 from 'p5';
+import 'p5/lib/addons/p5.sound';
+import 'p5/lib/addons/p5.dom';
+
+import { isEmpty } from 'lodash';
 import {
   AppContainer,
   GlobalStyle,
   Input,
   Button,
   H1
-} from "../../styles/global.js";
+} from '../../styles/global.js';
 
 import {
   spotifyWebApiURL,
   spotifyProfileURL
-} from "../../constants/app_secrets";
-import axios from "axios";
-import P5Wrapper from "react-p5-wrapper";
+} from '../../constants/app_secrets';
+import axios from 'axios';
+import P5Wrapper from 'react-p5-wrapper';
 
-import sketch from "../sketch/sketch";
+import sketch from '../sketch/sketch';
 
-import Player from "../Player/Player.jsx";
-
-// const keyMap = {
-//   "-1": "No pitch",
-//   0: "C",
-//   1: "C#",
-//   2: "D",
-//   3: "D#",
-//   4: "E",
-//   5: "F",
-//   6: "F#",
-//   7: "G",
-//   8: "G#",
-//   9: "A",
-//   10: "A#",
-//   11: "B"
-// };
+import Player from '../Player/Player.jsx';
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      authToken: "",
+      authToken: '',
       profile: [],
       deviceId: null,
       user: {},
-      gifUrl: "",
+      gifUrl: '',
       gifUrls: [],
-      searchTerm: "",
-      rotation: 0
+      searchTerm: '',
+      rotation: 0,
+      frequencySpectrum: {},
+      amplitude: 0
     };
-
-    // this.playerCheckInterval = null;
+    this.frequencySpectrum;
     this.audioInputStreamInterval = null;
   }
 
@@ -58,18 +47,17 @@ class App extends Component {
     console.log(process.env.NODE_ENV);
     this.checkToken();
     let url = window.location.href;
-    if (url.indexOf("token=") > -1) {
+    if (url.indexOf('token=') > -1) {
       let authToken = url
-        .split("token=")[1]
-        .split("&")[0]
+        .split('token=')[1]
+        .split('&')[0]
         .trim();
 
-      this.props.history.replace("/");
+      this.props.history.replace('/');
       this.setState({ authToken });
-      window.localStorage.setItem("authToken", authToken);
+      window.localStorage.setItem('authToken', authToken);
     }
-
-    // this.playerCheckInterval = setInterval(() => this.checkForPlayer(), 1000);
+    this.initP5();
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -79,72 +67,11 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    // clearInterval(this.playerCheckInterval);
     clearInterval(this.audioInputStreamInterval);
   }
 
-  // checkForPlayer() {
-  //   const { authToken } = this.state;
-
-  //   if (window.Spotify !== null && this.state.authToken) {
-  //     this.player = new window.Spotify.Player({
-  //       name: "RaveTronic",
-  //       getOAuthToken: cb => {
-  //         cb(authToken);
-  //       }
-  //     });
-  //     this.createEventHandlers();
-
-  //     // finally, connect!
-  //     this.player.connect();
-
-  //     clearInterval(this.playerCheckInterval);
-  //     console.log("init player!");
-  //   }
-  // }
-
-  // createEventHandlers() {
-  //   this.player.on("initialization_error", e => {
-  //     console.error(e);
-  //   });
-  //   this.player.on("authentication_error", e => {
-  //     console.error(e);
-  //     this.setState({ loggedIn: false });
-  //   });
-  //   this.player.on("account_error", e => {
-  //     console.error(e);
-  //   });
-  //   this.player.on("playback_error", e => {
-  //     console.error(e);
-  //   });
-  //   // Playback status updates
-  //   this.player.on("player_state_changed", async state => {
-  //     console.log(state);
-  //     this.getAudioAnalysis();
-  //   });
-
-  //   // Ready
-  //   this.player.on("ready", data => {
-  //     let { device_id } = data;
-  //     console.log("Let the music play on!");
-  //     this.setState({ deviceId: device_id });
-  //   });
-  // }
-
-  // getAudioAnalysis = async () => {
-  //   const resp = await axios.get(
-  //     `https://api.spotify.com/v1/audio-analysis/${
-  //       state.track_window.current_track.id
-  //     }?access_token=${this.state.authToken}`
-  //   );
-  //   console.log(resp.data);
-  //   this.setState({
-  //     trackData: resp.data.track,
-  //     trackSections: resp.data.sections
-  //   });
-  // };
   checkToken() {
-    const authToken = window.localStorage.getItem("authToken");
+    const authToken = window.localStorage.getItem('authToken');
     if (!authToken) {
       // this.handleAuthFlow();
     } else {
@@ -164,38 +91,6 @@ class App extends Component {
     console.log(resp.data);
   }
 
-  // nextTrack = () => {
-  //   this.player.nextTrack().then(() => {
-  //     console.log("Skipped to next track!");
-  //   });
-  // };
-
-  // prevTrack = () => {
-  //   this.player.previousTrack().then(() => {
-  //     console.log("Skipped to next track!");
-  //   });
-  // };
-
-  // pauseTrack = () => {
-  //   this.player.pause().then(() => {
-  //     console.log("Skipped to next track!");
-  //   });
-  // };
-
-  // resumeTrack = () => {
-  //   this.player.resume().then(() => {
-  //     console.log("Skipped to next track!");
-  //   });
-  // };
-
-  // renderTrackSections = () => {
-  //   return this.state.trackSections.map((section, index) => (
-  //     <p className="display-5">{`Section ${index + 1} duration ${
-  //       section.duration
-  //     }`}</p>
-  //   ));
-  // };
-
   searchGifs = async () => {
     if (!this.state.searchTerm) {
       return;
@@ -214,13 +109,28 @@ class App extends Component {
 
   getTrendingGifs = async () => {
     const resp = await axios.get(
-      "https://api.giphy.com/v1/stickers/trending?api_key=2xh1IKW6Nn65SDnbfcBbXuaCJXBXi1De&limit=25&rating=G"
+      'https://api.giphy.com/v1/stickers/trending?api_key=2xh1IKW6Nn65SDnbfcBbXuaCJXBXi1De&limit=25&rating=G'
     );
     console.log(resp);
     this.setState({
       gifUrl: resp.data.data[0].images.original.url,
       gifUrls: [...resp.data.data]
     });
+  };
+
+  initP5 = () => {
+    const mic = new p5.AudioIn();
+    mic.start();
+    const fft = new p5.FFT();
+    fft.setInput(mic);
+    const amplitude = new p5.Amplitude();
+    amplitude.setInput(mic);
+    amplitude.smooth(0.5);
+    this.audioInputStreamInterval = setInterval(() => {
+      const frequencySpectrum = fft.analyze();
+      const amp = amplitude.getLevel();
+      this.setState({ frequencySpectrum, amplitude: amp });
+    }, 50);
   };
 
   render() {
@@ -231,12 +141,17 @@ class App extends Component {
         {this.state.authToken && !isEmpty(this.state.user) ? (
           <p>Logged in user: {this.state.user.display_name}</p>
         ) : (
-          <Button type="button" color="#1DB954" onClick={this.handleAuthFlow}>
+          <Button type='button' color='#1DB954' onClick={this.handleAuthFlow}>
             Sign in with Spotify
           </Button>
         )}
         <Player authToken={this.state.authToken} />
-        {/* <P5Wrapper sketch={sketch} rotation={this.state.rotation} />
+        <P5Wrapper
+          sketch={sketch}
+          frequencySpectrum={this.state.frequencySpectrum}
+          amplitude={this.state.amplitude}
+          rotation={this.state.rotation}
+        />
         <Button
           onClick={() => {
             const rotation = this.state.rotation + 10;
@@ -245,7 +160,7 @@ class App extends Component {
           }}
         >
           Rotate
-        </Button> */}
+        </Button>
 
         <Input
           value={this.state.searchTerm}
@@ -258,7 +173,7 @@ class App extends Component {
         </Button>
         {this.state.gifUrls.length &&
           this.state.gifUrls.map(gif => (
-            <img key={gif.id} alt="gif" src={gif.images.original.url} />
+            <img key={gif.id} alt='gif' src={gif.images.original.url} />
           ))}
       </AppContainer>
     );
