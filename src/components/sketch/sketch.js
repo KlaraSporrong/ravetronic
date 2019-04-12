@@ -1,13 +1,13 @@
-import 'p5/lib/addons/p5.sound';
-import 'p5/lib/addons/p5.dom';
+import "p5/lib/addons/p5.sound";
+import "p5/lib/addons/p5.dom";
 
 let mic;
 let fft;
-
+let energy = [];
 let spectrum = [];
 let t = 0;
-const width = 720;
-const height = 400;
+const width = window.outerHeight;
+const height = window.outerHeight;
 let amplitude = 0;
 let colors;
 let side;
@@ -23,6 +23,9 @@ export default function sketch(p) {
     if (props.amplitude) {
       amplitude = props.amplitude;
     }
+    if (props.energy) {
+      energy = props.energy;
+    }
   };
 
   // -- Amplitude over time --//
@@ -36,8 +39,21 @@ export default function sketch(p) {
     p.colorMode(p.HSB);
   };
   p.draw = () => {
-    p.background(20, 20);
-    p.fill(255, 10);
+    p.background(0);
+
+    const amplitudeSize = p.map(amplitude * 100, 0, 1, 0, 200);
+    p.fill(255);
+    p.ellipse(width / 2, height / 2, amplitudeSize, amplitudeSize);
+
+    let trebSize = p.map(energy.trebEnergy / 100, 0, 1, 0, 200);
+    let midSize = p.map(energy.midEnergy / 100, 0, 1, 0, 200);
+    let bassSize = p.map(energy.bassEnergy / 100, 0, 1, 0, 200);
+    p.fill("rgba(0,0,255, 0.5)");
+    p.ellipse(width / 6, height / 2, trebSize, trebSize);
+    p.fill("rgba(0,255,0, 0.5)");
+    p.ellipse((width / 6) * 3, height / 2, midSize, midSize);
+    p.fill("rgba(100%,0%,100%,0.5)");
+    p.ellipse((width / 6) * 6, height / 2, bassSize, bassSize);
 
     // rectangle variables
     var spacing = 10;
@@ -51,6 +67,7 @@ export default function sketch(p) {
     // remove first item in array
     prevLevels.splice(0, 1);
 
+    p.fill(255, 10);
     // loop through all the previous levels
     for (let i = 0; i < prevLevels.length; i++) {
       var x = p.map(i, prevLevels.length, 0, width / 2, width);
