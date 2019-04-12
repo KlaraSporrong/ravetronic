@@ -1,7 +1,8 @@
-import React from "react";
-import PropTypes from "prop-types";
-import axios from "axios";
-import { Button, H2 } from "../../styles/global.js";
+import React from 'react';
+import PropTypes from 'prop-types';
+
+import { Button, H2 } from '../../styles/global.js';
+import spotifyService from '../../api/spotify/spotifyService.js';
 
 const propTypes = {
   authToken: PropTypes.string
@@ -10,19 +11,19 @@ const propTypes = {
 const defaultProps = {};
 
 const keyMap = {
-  "-1": "No pitch",
-  0: "C",
-  1: "C#",
-  2: "D",
-  3: "D#",
-  4: "E",
-  5: "F",
-  6: "F#",
-  7: "G",
-  8: "G#",
-  9: "A",
-  10: "A#",
-  11: "B"
+  '-1': 'No pitch',
+  0: 'C',
+  1: 'C#',
+  2: 'D',
+  3: 'D#',
+  4: 'E',
+  5: 'F',
+  6: 'F#',
+  7: 'G',
+  8: 'G#',
+  9: 'A',
+  10: 'A#',
+  11: 'B'
 };
 
 class Player extends React.Component {
@@ -30,16 +31,21 @@ class Player extends React.Component {
     super(props);
 
     this.playerCheckInterval = null;
+    this.playerStateInterval = null;
     this.player = null;
 
     this.state = {
       trackData: {},
-      trackSections: []
+      trackSections: [],
+      trackId: ''
     };
   }
 
   componentDidMount() {
     this.playerCheckInterval = setInterval(() => this.checkForPlayer(), 1000);
+    this.playerStateInterval = setInterval(() => {
+      this.getPlayerState();
+    }, 500);
   }
 
   checkForPlayer() {
@@ -47,7 +53,7 @@ class Player extends React.Component {
 
     if (window.Spotify !== null && this.props.authToken) {
       this.player = new window.Spotify.Player({
-        name: "RaveTronic",
+        name: 'RaveTronic',
         getOAuthToken: cb => {
           cb(authToken);
         }
@@ -58,48 +64,61 @@ class Player extends React.Component {
       this.player.connect();
 
       clearInterval(this.playerCheckInterval);
-      console.log("init player!");
+      console.log('init player!');
     }
   }
 
   createEventHandlers() {
-    this.player.on("initialization_error", e => {
+    this.player.on('initialization_error', e => {
       console.error(e);
     });
-    this.player.on("authentication_error", e => {
+    this.player.on('authentication_error', e => {
       console.error(e);
       this.setState({ loggedIn: false });
     });
-    this.player.on("account_error", e => {
+    this.player.on('account_error', e => {
       console.error(e);
     });
-    this.player.on("playback_error", e => {
+    this.player.on('playback_error', e => {
       console.error(e);
     });
     // Playback status updates
-    this.player.on("player_state_changed", async state => {
+    this.player.on('player_state_changed', async state => {
       console.log(state);
       if (!state) {
         this.setState({ trackData: {}, trackSections: [] });
       } else {
-        this.getAudioAnalysis(state);
+        const trackId = state.track_window.current_track.id;
+        this.setState({ trackId });
+        this.getAudioAnalysis(trackId);
       }
     });
 
     // Ready
-    this.player.on("ready", data => {
+    this.player.on('ready', data => {
       let { device_id } = data;
-      console.log("Let the music play on!");
+      console.log('Let the music play on!');
       this.setState({ deviceId: device_id });
     });
   }
 
-  getAudioAnalysis = async state => {
-    const resp = await axios.get(
-      `https://api.spotify.com/v1/audio-analysis/${
-        state.track_window.current_track.id
-      }?access_token=${this.props.authToken}`
+  getPlayerState = async () => {
+    if (!this.player) {
+      return;
+    }
+    const state = await this.player.getCurrentState();
+    console.log(state);
+  };
+
+  getAudioAnalysis = async trackId => {
+    if (!trackId) {
+      return;
+    }
+    const resp = await spotifyService.analyzeTrack(
+      trackId,
+      this.props.authToken
     );
+
     console.log(resp.data);
     this.setState({
       trackData: resp.data.track,
@@ -109,31 +128,31 @@ class Player extends React.Component {
 
   nextTrack = () => {
     this.player.nextTrack().then(() => {
-      console.log("Skipped to next track!");
+      console.log('Skipped to next track!');
     });
   };
 
   prevTrack = () => {
     this.player.previousTrack().then(() => {
-      console.log("Skipped to next track!");
+      console.log('Skipped to next track!');
     });
   };
 
   pauseTrack = () => {
     this.player.pause().then(() => {
-      console.log("Skipped to next track!");
+      console.log('Skipped to next track!');
     });
   };
 
   resumeTrack = () => {
     this.player.resume().then(() => {
-      console.log("Skipped to next track!");
+      console.log('Skipped to next track!');
     });
   };
 
   renderTrackSections = () => {
     return this.state.trackSections.map((section, index) => (
-      <p key={index} className="display-5">{`Section ${index + 1} duration ${
+      <p key={index} className='display-5'>{`Section ${index + 1} duration ${
         section.duration
       }`}</p>
     ));

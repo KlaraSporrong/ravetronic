@@ -1,5 +1,5 @@
-import "p5/lib/addons/p5.sound";
-import "p5/lib/addons/p5.dom";
+import 'p5/lib/addons/p5.sound';
+import 'p5/lib/addons/p5.dom';
 
 let mic;
 let fft;
@@ -48,11 +48,11 @@ export default function sketch(p) {
     let trebSize = p.map(energy.trebEnergy / 100, 0, 1, 0, 200);
     let midSize = p.map(energy.midEnergy / 100, 0, 1, 0, 200);
     let bassSize = p.map(energy.bassEnergy / 100, 0, 1, 0, 200);
-    p.fill("rgba(0,0,255, 0.5)");
+    p.fill('rgba(0,0,255, 0.5)');
     p.ellipse(width / 6, height / 2, trebSize, trebSize);
-    p.fill("rgba(0,255,0, 0.5)");
+    p.fill('rgba(0,255,0, 0.5)');
     p.ellipse((width / 6) * 3, height / 2, midSize, midSize);
-    p.fill("rgba(100%,0%,100%,0.5)");
+    p.fill('rgba(100%,0%,100%,0.5)');
     p.ellipse((width / 6) * 6, height / 2, bassSize, bassSize);
 
     // rectangle variables
