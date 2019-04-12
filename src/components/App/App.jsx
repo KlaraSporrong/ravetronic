@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 
 import { isEmpty } from 'lodash';
 
-import p5 from 'p5';
-import 'p5/lib/addons/p5.sound';
-import 'p5/lib/addons/p5.dom';
+// import p5 from 'p5';
+// import 'p5/lib/addons/p5.sound';
+// import 'p5/lib/addons/p5.dom';
 
 import {
   AppContainer,
@@ -16,17 +16,17 @@ import {
 
 import {
   spotifyWebApiURL,
-  spotifyProfileURL,
-  hue
+  spotifyProfileURL
 } from '../../constants/app_secrets';
 import hueService from '../../api/hue/hueService.js';
 
 import axios from 'axios';
-import P5Wrapper from 'react-p5-wrapper';
+// import P5Wrapper from 'react-p5-wrapper';
 
-import sketch from '../sketch/sketch';
+// import sketch from '../sketch/sketch';
 
 import Player from '../Player/Player.jsx';
+import P5 from '../P5/P5.jsx';
 
 class App extends Component {
   constructor(props) {
@@ -39,10 +39,6 @@ class App extends Component {
       gifUrl: '',
       gifUrls: [],
       searchTerm: '',
-      rotation: 0,
-      frequencySpectrum: [],
-      amplitude: 0,
-      energy: {},
 
       light1: {
         id: 8,
@@ -57,9 +53,7 @@ class App extends Component {
         on: false
       }
     };
-    this.mic = null;
-    this.frequencySpectrum;
-    this.audioInputStreamInterval = null;
+
     this.hueBrightnessInterval = null;
   }
 
@@ -72,12 +66,14 @@ class App extends Component {
         .split('token=')[1]
         .split('&')[0]
         .trim();
-
+      const expiresIn = parseInt(url.split('expires_in=')[1]);
+      let expiresAt = new Date().getTime() + expiresIn * 1000;
+      console.log(expiresAt);
       this.props.history.replace('/');
       this.setState({ authToken });
       window.localStorage.setItem('authToken', authToken);
+      window.localStorage.setItem('expiresAt', expiresAt);
     }
-    this.initP5();
 
     this.initHue();
   };
@@ -88,14 +84,11 @@ class App extends Component {
     }
   }
 
-  componentWillUnmount() {
-    clearInterval(this.audioInputStreamInterval);
-  }
-
   checkToken() {
     const authToken = window.localStorage.getItem('authToken');
-    if (!authToken) {
-      // this.handleAuthFlow();
+    const expiresAt = window.localStorage.getItem('expiresAt');
+    if (!authToken || expiresAt < new Date().getTime()) {
+      window.location.assign(spotifyWebApiURL);
     } else {
       this.setState({ authToken });
     }
@@ -138,29 +131,6 @@ class App extends Component {
       gifUrl: resp.data.data[0].images.original.url,
       gifUrls: [...resp.data.data]
     });
-  };
-
-  initP5 = () => {
-    this.mic = new p5.AudioIn();
-    this.mic.start();
-    const fft = new p5.FFT();
-    fft.setInput(this.mic);
-    const amplitude = new p5.Amplitude();
-    amplitude.setInput(this.mic);
-    // amplitude.smooth(0.5);
-    this.audioInputStreamInterval = setInterval(() => {
-      const frequencySpectrum = fft.analyze();
-      const trebEnergy = fft.getEnergy('treble');
-      const midEnergy = fft.getEnergy('mid');
-      const bassEnergy = fft.getEnergy('bass');
-      const amp = amplitude.getLevel();
-
-      this.setState({
-        frequencySpectrum,
-        amplitude: amp,
-        energy: { trebEnergy, midEnergy, bassEnergy }
-      });
-    }, 50);
   };
 
   initHue = async () => {
@@ -232,24 +202,14 @@ class App extends Component {
             Sign in with Spotify
           </Button>
         )}
-        <Player authToken={this.state.authToken} />
-        <P5Wrapper
-          sketch={sketch}
-          frequencySpectrum={this.state.frequencySpectrum}
-          energy={this.state.energy}
-          amplitude={this.state.amplitude}
-          rotation={this.state.rotation}
-        />
-        <Button
-          onClick={() => {
-            const rotation = this.state.rotation + 10;
-            console.log(rotation);
-            this.setState({ rotation });
-          }}
-        >
-          Rotate
-        </Button>
 
+        {/* ---- Spotify player ---- */}
+        <Player authToken={this.state.authToken} />
+
+        {/* ---- P5 ---- */}
+        <P5 />
+
+        {/* ---- GIPHY ----*/}
         <Input
           value={this.state.searchTerm}
           onChange={event => this.setState({ searchTerm: event.target.value })}
