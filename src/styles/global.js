@@ -1,4 +1,4 @@
-import styled, { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from 'styled-components';
 
 export const GlobalStyle = createGlobalStyle`
   * {
@@ -16,8 +16,8 @@ export const GlobalStyle = createGlobalStyle`
 `;
 
 export const Button = styled.button`
-  background-color: ${props => (props.color ? props.color : "white")}
-  color: ${props => (props.color ? "white" : "black")}
+  background-color: ${props => (props.color ? props.color : 'white')}
+  color: ${props => (props.color ? 'white' : 'black')}
   padding: 12px 32px;
   border: none;
   border-radius: 60px;

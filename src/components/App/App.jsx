@@ -47,8 +47,6 @@ class App extends Component {
       window.localStorage.setItem('authToken', authToken);
       window.localStorage.setItem('expiresAt', expiresAt);
     }
-
-    // this.initHue();
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -98,7 +96,7 @@ class App extends Component {
         <Player authToken={this.state.authToken} />
 
         {/* ---- P5 ---- */}
-        <P5 />
+        {/* <P5 /> */}
 
         {/* ---- GIPHY ----*/}
         <Giphy />

@@ -7,16 +7,19 @@ function hueService() {
     return axios.get(`${url}/lights/${lightId}`);
   };
 
-  const switchLight = async (lightId, isOn) => {
+  const switchLight = async (lightId, isOn, hue) => {
     return axios.put(`${url}/lights/${lightId}/state`, {
       bri: isOn ? 254 : 1,
-      transitiontime: 0
+      hue: hue
     });
   };
 
-  const setBrightness = async (lightId, brightness) => {
+  const setColor = async (lightId, hue) => {
+    console.log(hue);
     return axios.put(`${url}/lights/${lightId}/state`, {
-      bri: brightness,
+      hue: hue,
+      sat: 254,
+      bri: 254 / 2,
       transitiontime: 0
     });
   };
@@ -24,7 +27,7 @@ function hueService() {
   return {
     getLight,
     switchLight,
-    setBrightness
+    setColor
   };
 }
 

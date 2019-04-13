@@ -72,10 +72,10 @@ class Hue extends React.Component {
     hueService.switchLight(light.id, isOn);
   };
 
-  setLightBrightness = async (lightName, brightness) => {
-    const light = { ...this.state[lightName] };
-    hueService.setBrightness(light.id, brightness);
-  };
+  //   setLightBrightness = async (lightName, brightness) => {
+  //     const light = { ...this.state[lightName] };
+  //     hueService.setBrightness(light.id, brightness);
+  //   };
 
   render() {
     return (

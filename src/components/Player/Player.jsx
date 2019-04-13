@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { Button, H2 } from '../../styles/global.js';
 import spotifyService from '../../api/spotify/spotifyService.js';
+import hueService from '../../api/hue/hueService.js';
 
 const propTypes = {
   authToken: PropTypes.string
@@ -32,20 +33,47 @@ class Player extends React.Component {
 
     this.playerCheckInterval = null;
     this.playerStateInterval = null;
+    this.colorInterval = null;
+    this.beatInterval = null;
+    this.barsInterval = null;
     this.player = null;
-
+    this.colorIndex = 0;
+    this.colors = [0, 4000, 15000, 24000, 28000, 31000];
     this.state = {
       trackData: {},
-      trackSections: [],
-      trackId: ''
+      sections: [],
+      bars: [],
+      beats: [],
+      segments: [],
+      currentTrack: {},
+      trackPosition: 0,
+      trackDuration: 0,
+      trackTempo: 0,
+      isPaused: true,
+      beat: 0,
+      light1: {
+        id: 8,
+        on: false,
+        color: 43690
+      },
+      light2: {
+        id: 17,
+        on: false,
+        color: 0
+      },
+      light3: {
+        id: 19,
+        on: false,
+        color: 21845
+      }
     };
   }
 
   componentDidMount() {
     this.playerCheckInterval = setInterval(() => this.checkForPlayer(), 1000);
-    this.playerStateInterval = setInterval(() => {
-      this.getPlayerState();
-    }, 500);
+    // this.playerStateInterval = setInterval(() => {
+    //   this.getPlayerState();
+    // }, 500);
   }
 
   checkForPlayer() {
@@ -84,22 +112,44 @@ class Player extends React.Component {
     });
     // Playback status updates
     this.player.on('player_state_changed', async state => {
-      console.log(state);
+      console.log('state changed: ', state);
       if (!state) {
-        this.setState({ trackData: {}, trackSections: [] });
+        this.setState({ trackData: {}, sections: [] });
       } else {
-        const trackId = state.track_window.current_track.id;
-        this.setState({ trackId });
-        this.getAudioAnalysis(trackId);
+        if (
+          this.state.currentTrack.id !== state.track_window.current_track.id
+        ) {
+          this.colorIndex = 0;
+          clearInterval(this.beatInterval);
+          clearInterval(this.barsInterval);
+          clearInterval(this.colorInterval);
+          this.setTrackState(state);
+          this.getAudioAnalysis(state.track_window.current_track.id);
+        } else {
+          const isPaused = state.paused;
+
+          this.setState({ isPaused });
+        }
       }
     });
 
     // Ready
     this.player.on('ready', data => {
       let { device_id } = data;
-      console.log('Let the music play on!');
+      console.log('Player ready');
       this.setState({ deviceId: device_id });
     });
+  }
+
+  setTrackState(state) {
+    if (!state) {
+      return;
+    }
+    const currentTrack = state.track_window.current_track;
+    const trackPosition = state.position;
+    const isPaused = state.paused;
+    console.log(trackPosition);
+    this.setState({ currentTrack, trackPosition, isPaused });
   }
 
   getPlayerState = async () => {
@@ -107,7 +157,7 @@ class Player extends React.Component {
       return;
     }
     const state = await this.player.getCurrentState();
-    console.log(state);
+    this.setTrackState(state);
   };
 
   getAudioAnalysis = async trackId => {
@@ -119,43 +169,104 @@ class Player extends React.Component {
       this.props.authToken
     );
 
-    console.log(resp.data);
     this.setState({
       trackData: resp.data.track,
-      trackSections: resp.data.sections
+      trackTempo: resp.data.track.tempo,
+      trackDuration: resp.data.track.duration,
+      sections: resp.data.sections,
+      bars: resp.data.bars,
+      beats: resp.data.beats,
+      segments: resp.data.segments
     });
+
+    // this.playerStateInterval = setInterval(() => {
+    //   this.getPlayerState();
+    // }, 500);
+    const tempoMs = Math.round(60000 / Math.round(resp.data.track.tempo));
+    console.log(tempoMs);
+    const light3 = { ...this.state.light3 };
+
+    hueService.setColor(light3.id, light3.color);
+    this.setState({ light3 });
+    this.colorInterval = setInterval(this.handleColor, tempoMs * 2);
+    this.beatInterval = setInterval(this.handleBeat, tempoMs * 2);
+    this.barsInterval = setInterval(this.handleBars, tempoMs);
+  };
+
+  handleBeat = () => {
+    if (this.state.isPaused) {
+      return;
+    }
+    // this.getPlayerState();
+
+    const light1 = { ...this.state.light1 };
+    light1.on = !light1.on;
+
+    hueService.switchLight(light1.id, light1.on, light1.color);
+    this.setState({ light1 });
+  };
+  handleBars = () => {
+    if (this.state.isPaused) {
+      return;
+    }
+    // this.getPlayerState();
+
+    const light2 = { ...this.state.light2 };
+    light2.on = !light2.on;
+
+    hueService.switchLight(light2.id, light2.on, light2.color);
+    this.setState({ light2 });
+  };
+
+  handleColor = () => {
+    if (this.state.isPaused) {
+      return;
+    }
+    if (this.colorIndex < 5) {
+      this.colorIndex++;
+    } else {
+      this.colorIndex = 0;
+    }
+    const light3 = { ...this.state.light3 };
+
+    hueService.setColor(light3.id, this.colors[this.colorIndex]);
+    this.setState({ light3 });
   };
 
   nextTrack = () => {
     this.player.nextTrack().then(() => {
-      console.log('Skipped to next track!');
+      console.log('Next');
     });
   };
 
   prevTrack = () => {
     this.player.previousTrack().then(() => {
-      console.log('Skipped to next track!');
+      console.log('Prev');
     });
   };
 
   pauseTrack = () => {
     this.player.pause().then(() => {
-      console.log('Skipped to next track!');
+      console.log('Pause');
     });
   };
 
   resumeTrack = () => {
     this.player.resume().then(() => {
-      console.log('Skipped to next track!');
+      console.log('Play');
     });
   };
 
   renderTrackSections = () => {
-    return this.state.trackSections.map((section, index) => (
+    return this.state.sections.map((section, index) => (
       <p key={index} className='display-5'>{`Section ${index + 1} duration ${
         section.duration
       }`}</p>
     ));
+  };
+
+  renderBars = () => {
+    return this.state.beats.map(beat => {});
   };
 
   render() {
@@ -165,11 +276,9 @@ class Player extends React.Component {
         <Button onClick={this.nextTrack}>NEXT</Button>
         <Button onClick={this.resumeTrack}>PLAY</Button>
         <Button onClick={this.pauseTrack}>PAUSE</Button>
-        <p>Duration: {this.state.trackData.duration}</p>
-        <p>Key: {keyMap[this.state.trackData.key]}</p>
-        <p>Tempo: {this.state.trackData.tempo}</p>
-        <p>End of fade in: {this.state.trackData.end_of_fade_in}</p>
-        <p>Start of fade out: {this.state.trackData.start_of_fade_out}</p>
+        <p>Duration: {this.state.trackDuration}</p>
+        <p>Tempo: {this.state.trackTempo}</p>
+        <p>Position: {this.state.trackPosition}</p>
         <H2>Track sections</H2>
         <div>{this.renderTrackSections()}</div>
       </React.Fragment>
