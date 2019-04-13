@@ -1,6 +1,7 @@
 import React from 'react';
 import giphyService from '../../api/giphy/giphyService';
 import { Button, Input } from '../../styles/global.js';
+import {isEmpty} from 'lodash';
 
 class Giphy extends React.Component {
   constructor(props) {
@@ -8,7 +9,8 @@ class Giphy extends React.Component {
 
     this.state = {
       searchTerm: '',
-      gifUrls: []
+      gifUrls: [],
+      gif: {}
     };
   }
   componentDidMount() {}
@@ -19,7 +21,7 @@ class Giphy extends React.Component {
 
     const resp = await giphyService.searchGifs(this.state.searchTerm);
     this.setState({
-      gifUrl: resp.data.data[0].images.original.url,
+      gif: resp.data.data[0].images.original.url,
       gifUrls: [...resp.data.data]
     });
   };
@@ -34,6 +36,7 @@ class Giphy extends React.Component {
   };
 
   render() {
+    const {gif} = this.state;
     return (
       <React.Fragment>
         <Input
@@ -45,10 +48,10 @@ class Giphy extends React.Component {
         <Button onClick={() => this.setState({ gifUrls: [] })}>
           Clear gifs
         </Button>
-        {this.state.gifUrls.length &&
-          this.state.gifUrls.map(gif => (
-            <img key={gif.id} alt='gif' src={gif.images.original.url} />
-          ))}
+        {this.state.gifUrls.length && (
+          <img alt='gif' src={this.state.gifUrls[0].images.original.url} />
+        )}
+
       </React.Fragment>
     );
   }
