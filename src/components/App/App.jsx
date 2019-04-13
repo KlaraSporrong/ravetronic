@@ -2,13 +2,7 @@ import React, { Component } from 'react';
 
 import { isEmpty } from 'lodash';
 
-import {
-  AppContainer,
-  GlobalStyle,
-  Input,
-  Button,
-  H1
-} from '../../styles/global.js';
+import { AppContainer, GlobalStyle, Button, H1 } from '../../styles/global.js';
 
 import {
   spotifyWebApiURL,
@@ -20,6 +14,7 @@ import axios from 'axios';
 import Player from '../Player/Player.jsx';
 import P5 from '../P5/P5.jsx';
 import Hue from '../Hue/Hue.jsx';
+import Giphy from '../Giphy/Giphy.jsx';
 
 class App extends Component {
   constructor(props) {
@@ -32,22 +27,7 @@ class App extends Component {
       gifUrl: '',
       gifUrls: [],
       searchTerm: ''
-
-      // light1: {
-      //   id: 8,
-      //   on: false
-      // },
-      // light2: {
-      //   id: 17,
-      //   on: false
-      // },
-      // light3: {
-      //   id: 19,
-      //   on: false
-      // }
     };
-
-    // this.hueBrightnessInterval = null;
   }
 
   componentDidMount = () => {
@@ -99,94 +79,11 @@ class App extends Component {
     console.log(resp.data);
   };
 
-  searchGifs = async () => {
-    if (!this.state.searchTerm) {
-      return;
-    }
-    const resp = await axios.get(
-      `https://api.giphy.com/v1/stickers/search?api_key=2xh1IKW6Nn65SDnbfcBbXuaCJXBXi1De&q=${
-        this.state.searchTerm
-      }`
-    );
-    console.log(resp);
-    this.setState({
-      gifUrl: resp.data.data[0].images.original.url,
-      gifUrls: [...resp.data.data]
-    });
-  };
-
-  getTrendingGifs = async () => {
-    const resp = await axios.get(
-      'https://api.giphy.com/v1/stickers/trending?api_key=2xh1IKW6Nn65SDnbfcBbXuaCJXBXi1De&limit=25&rating=G'
-    );
-    console.log(resp);
-    this.setState({
-      gifUrl: resp.data.data[0].images.original.url,
-      gifUrls: [...resp.data.data]
-    });
-  };
-
-  // initHue = async () => {
-  //   const { light1, light2, light3 } = this.state;
-  //   const resp1 = await hueService.getLight(light1.id);
-  //   const resp2 = await hueService.getLight(light2.id);
-  //   const resp3 = await hueService.getLight(light3.id);
-  //   console.log(resp1);
-  //   console.log(resp2);
-  //   console.log(resp3);
-
-  //   const initLight1 = {
-  //     ...light1,
-  //     on: resp1.data.state.bri > 1 ? true : false
-  //   };
-  //   const initLight2 = {
-  //     ...light2,
-  //     on: resp2.data.state.bri > 1 ? true : false
-  //   };
-  //   const initLight3 = {
-  //     ...light3,
-  //     on: resp3.data.state.bri > 1 ? true : false
-  //   };
-
-  //   this.setState({
-  //     light1: initLight1,
-  //     light2: initLight2,
-  //     light3: initLight3
-  //   });
-
-  //   // this.hueBrightnessInterval = setInterval(() => {
-  //   //   console.log(this.state.energy.bassEnergy);
-  //   //   this.setLightBrightness('light1', this.state.energy.midEnergy);
-  //   // }, 50);
-  // };
-
-  // toggleLight = async lightName => {
-  //   const light = { ...this.state[lightName] };
-  //   const isOn = !light.on;
-  //   light.on = isOn;
-  //   this.setState({ [lightName]: light });
-  //   hueService.switchLight(light.id, isOn);
-  // };
-
-  // setLightBrightness = async (lightName, brightness) => {
-  //   const light = { ...this.state[lightName] };
-  //   hueService.setBrightness(light.id, brightness);
-  // };
-
   render() {
     return (
       <AppContainer>
         <GlobalStyle />
         <H1>RaveTronic</H1>
-        {/* <Button onClick={() => this.toggleLight('light1')}>
-          Switch light 1
-        </Button>
-        <Button onClick={() => this.toggleLight('light2')}>
-          Switch light 2
-        </Button>
-        <Button onClick={() => this.toggleLight('light3')}>
-          Switch light 3
-        </Button> */}
 
         <Hue />
         {this.state.authToken && !isEmpty(this.state.user) ? (
@@ -204,19 +101,7 @@ class App extends Component {
         <P5 />
 
         {/* ---- GIPHY ----*/}
-        <Input
-          value={this.state.searchTerm}
-          onChange={event => this.setState({ searchTerm: event.target.value })}
-        />
-        <Button onClick={this.searchGifs}>Search GIF</Button>
-        <Button onClick={this.getTrendingGifs}>Get trending gif</Button>
-        <Button onClick={() => this.setState({ gifUrls: [] })}>
-          Clear gifs
-        </Button>
-        {this.state.gifUrls.length &&
-          this.state.gifUrls.map(gif => (
-            <img key={gif.id} alt='gif' src={gif.images.original.url} />
-          ))}
+        <Giphy />
       </AppContainer>
     );
   }
