@@ -30,6 +30,7 @@
     "path": "^0.12.7",
     "react-p5-wrapper": "0.0.4",
     "react-player": "^0.25.3",
+    "react-pose": "^4.0.8",
     "react-router-dom": "^4.2.2",
     "styled-components": "^4.2.0"
   },

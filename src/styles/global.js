@@ -4,15 +4,15 @@ export const GlobalStyle = createGlobalStyle`
   * {
     font-family: Helvetica;
   }
-  body {
+  html, body {
     padding: 0;
     margin: 0;
     background-color: #212121;
-    
   }
   p {
     color: #e6e6e6;
   }
+
 `;
 
 export const Button = styled.button`
@@ -47,8 +47,4 @@ export const H1 = styled.h1`
 export const H2 = styled.h2`
   font-size: 32px;
   color: white;
-`;
-
-export const AppContainer = styled.div`
-  padding: 20px;
 `;

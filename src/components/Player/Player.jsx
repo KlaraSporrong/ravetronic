@@ -1,9 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
 import { Button, H2 } from '../../styles/global.js';
 import spotifyService from '../../api/spotify/spotifyService.js';
 import hueService from '../../api/hue/hueService.js';
+import Giphy from '../Giphy/Giphy.jsx';
+import Hue from '../Hue/Hue.jsx';
 
 const propTypes = {
   authToken: PropTypes.string
@@ -26,6 +29,17 @@ const keyMap = {
   10: 'A#',
   11: 'B'
 };
+
+const CenterDiv = styled.div`
+  height: 100vh;
+  width: 100%;
+  text-align: center;
+  font-size: 100px;
+  font-weight: bold;
+  color: white;
+  vertical-align: middle;
+  line-height: 100vh;
+`;
 
 class Player extends React.Component {
   constructor(props) {
@@ -65,7 +79,9 @@ class Player extends React.Component {
         id: 19,
         on: false,
         color: 21845
-      }
+      },
+      tempoMs: 0,
+      hueInit: false
     };
   }
 
@@ -169,6 +185,13 @@ class Player extends React.Component {
       this.props.authToken
     );
 
+    const tempoMs = Math.round(60000 / Math.round(resp.data.track.tempo));
+    console.log(tempoMs);
+
+    this.colorInterval = setInterval(this.handleColor, tempoMs * 2);
+    this.beatInterval = setInterval(this.handleBeat, tempoMs * 2);
+    this.barsInterval = setInterval(this.handleBars, tempoMs);
+
     this.setState({
       trackData: resp.data.track,
       trackTempo: resp.data.track.tempo,
@@ -176,21 +199,20 @@ class Player extends React.Component {
       sections: resp.data.sections,
       bars: resp.data.bars,
       beats: resp.data.beats,
-      segments: resp.data.segments
+      segments: resp.data.segments,
+      tempoMs
     });
 
-    // this.playerStateInterval = setInterval(() => {
-    //   this.getPlayerState();
-    // }, 500);
-    const tempoMs = Math.round(60000 / Math.round(resp.data.track.tempo));
-    console.log(tempoMs);
     const light3 = { ...this.state.light3 };
-
-    hueService.setColor(light3.id, light3.color);
+    if (this.state.hueInit) {
+      hueService.setColor(light3.id, light3.color);
+    }
     this.setState({ light3 });
-    this.colorInterval = setInterval(this.handleColor, tempoMs * 2);
-    this.beatInterval = setInterval(this.handleBeat, tempoMs * 2);
-    this.barsInterval = setInterval(this.handleBars, tempoMs);
+  };
+
+  handleHueInit = isInitialized => {
+    this.setState({ hueInit: isInitialized });
+    console.log(isInitialized);
   };
 
   handleBeat = () => {
@@ -201,8 +223,9 @@ class Player extends React.Component {
 
     const light1 = { ...this.state.light1 };
     light1.on = !light1.on;
-
-    hueService.switchLight(light1.id, light1.on, light1.color);
+    if (this.state.hueInit) {
+      hueService.switchLight(light1.id, light1.on, light1.color);
+    }
     this.setState({ light1 });
   };
   handleBars = () => {
@@ -228,8 +251,9 @@ class Player extends React.Component {
       this.colorIndex = 0;
     }
     const light3 = { ...this.state.light3 };
-
-    hueService.setColor(light3.id, this.colors[this.colorIndex]);
+    if (this.state.hueInit) {
+      hueService.setColor(light3.id, this.colors[this.colorIndex]);
+    }
     this.setState({ light3 });
   };
 
@@ -272,15 +296,16 @@ class Player extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <Button onClick={this.prevTrack}>PREV</Button>
+        <Hue onInit={this.handleHueInit} />
+        {this.state.tempoMs ? (
+          <Giphy isPaused={this.state.isPaused} tempo={this.state.tempoMs} />
+        ) : (
+          <CenterDiv>Ready to play!</CenterDiv>
+        )}
+        {/* <Button onClick={this.prevTrack}>PREV</Button>
         <Button onClick={this.nextTrack}>NEXT</Button>
         <Button onClick={this.resumeTrack}>PLAY</Button>
-        <Button onClick={this.pauseTrack}>PAUSE</Button>
-        <p>Duration: {this.state.trackDuration}</p>
-        <p>Tempo: {this.state.trackTempo}</p>
-        <p>Position: {this.state.trackPosition}</p>
-        <H2>Track sections</H2>
-        <div>{this.renderTrackSections()}</div>
+        <Button onClick={this.pauseTrack}>PAUSE</Button> */}
       </React.Fragment>
     );
   }

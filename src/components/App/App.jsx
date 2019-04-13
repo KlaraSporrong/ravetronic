@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import { isEmpty } from 'lodash';
 
-import { AppContainer, GlobalStyle, Button, H1 } from '../../styles/global.js';
+import { GlobalStyle, Button, H1 } from '../../styles/global.js';
 
 import {
   spotifyWebApiURL,
@@ -79,28 +79,25 @@ class App extends Component {
 
   render() {
     return (
-      <AppContainer>
+      <React.Fragment>
         <GlobalStyle />
-        <H1>RaveTronic</H1>
 
-        <Hue />
-        {this.state.authToken && !isEmpty(this.state.user) ? (
-          <p>Logged in user: {this.state.user.display_name}</p>
-        ) : (
+        {/* ---- Spotify player ---- */}
+        <Player authToken={this.state.authToken} />
+
+        {/* <Hue /> */}
+        {this.state.authToken && !isEmpty(this.state.user) ? null : (
           <Button type='button' color='#1DB954' onClick={this.handleAuthFlow}>
             Sign in with Spotify
           </Button>
         )}
 
-        {/* ---- Spotify player ---- */}
-        <Player authToken={this.state.authToken} />
-
         {/* ---- P5 ---- */}
         {/* <P5 /> */}
 
         {/* ---- GIPHY ----*/}
-        <Giphy />
-      </AppContainer>
+        {/* <Giphy /> */}
+      </React.Fragment>
     );
   }
 }
