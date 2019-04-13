@@ -300,7 +300,7 @@ class Player extends React.Component {
         {this.state.tempoMs ? (
           <Giphy isPaused={this.state.isPaused} tempo={this.state.tempoMs} />
         ) : (
-          <CenterDiv>Ready to play!</CenterDiv>
+          <CenterDiv>Ready to party!</CenterDiv>
         )}
         {/* <Button onClick={this.prevTrack}>PREV</Button>
         <Button onClick={this.nextTrack}>NEXT</Button>
