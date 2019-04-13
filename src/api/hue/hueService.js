@@ -15,7 +15,6 @@ function hueService() {
   };
 
   const setColor = async (lightId, hue) => {
-    console.log(hue);
     return axios.put(`${url}/lights/${lightId}/state`, {
       hue: hue,
       sat: 254,
