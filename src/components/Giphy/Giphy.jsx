@@ -6,8 +6,6 @@ import p5 from 'p5';
 import 'p5/lib/addons/p5.sound';
 import 'p5/lib/addons/p5.dom';
 
-import giphyService from '../../api/giphy/giphyService';
-import { Button, Input } from '../../styles/global.js';
 import sketch from '../P5/sketch';
 
 import P5Wrapper from 'react-p5-wrapper';
@@ -46,10 +44,8 @@ class Giphy extends React.Component {
 
     this.state = {
       searchTerm: '',
-      gifUrls: [],
       gifUrl: '',
       opacity: 0,
-      // showGifHalfTempo: true,
       showGifFullTempo: true,
       frequencySpectrum: [],
       amplitude: 0,
@@ -72,13 +68,27 @@ class Giphy extends React.Component {
     this.colorIndex = 0;
     this.gifIndex = 0;
 
+    // this.gifUrls = [
+    //   'https://media.giphy.com/media/12PXNbcHW8C9Bm/giphy.gif',
+    //   'https://media.giphy.com/media/8vtjZOUOHILz5yY9l3/giphy.gif',
+    //   'https://media.giphy.com/media/vwEHGjrUdKYjKHSUuF/giphy.gif',
+    //   'https://media.giphy.com/media/9nuXRx5EfGsKc/giphy.gif',
+    //   'https://media.giphy.com/media/l0IyfKMG8wCXoQCuA/giphy.gif',
+    //   'https://media.giphy.com/media/M5P9En3lqGNlS/giphy.gif'
+    // ];
+
     this.gifUrls = [
-      'https://media.giphy.com/media/12PXNbcHW8C9Bm/giphy.gif',
-      'https://media.giphy.com/media/8vtjZOUOHILz5yY9l3/giphy.gif',
-      'https://media.giphy.com/media/vwEHGjrUdKYjKHSUuF/giphy.gif',
-      'https://media.giphy.com/media/9nuXRx5EfGsKc/giphy.gif',
-      'https://media.giphy.com/media/l0IyfKMG8wCXoQCuA/giphy.gif',
-      'https://media.giphy.com/media/M5P9En3lqGNlS/giphy.gif'
+      'src/components/Giphy/giphy1.gif',
+      'src/components/Giphy/giphy2.gif',
+      'src/components/Giphy/giphy3.gif',
+      'src/components/Giphy/giphy4.gif',
+      'src/components/Giphy/giphy5.gif',
+      'src/components/Giphy/giphy6.gif',
+      'src/components/Giphy/giphy7.gif',
+      'src/components/Giphy/giphy8.gif',
+      'src/components/Giphy/giphy9.gif',
+      'src/components/Giphy/giphy10.gif',
+      'src/components/Giphy/giphy11.gif'
     ];
   }
 
@@ -160,7 +170,7 @@ class Giphy extends React.Component {
   };
 
   handleGifChange = () => {
-    if (this.gifIndex < 5) {
+    if (this.gifIndex < 10) {
       this.gifIndex++;
     } else {
       this.gifIndex = 0;
@@ -196,26 +206,26 @@ class Giphy extends React.Component {
     this.setAudioInputStreamInterval();
   };
 
-  searchGifs = async () => {
-    if (!this.state.searchTerm) {
-      return;
-    }
+  // searchGifs = async () => {
+  //   if (!this.state.searchTerm) {
+  //     return;
+  //   }
 
-    const resp = await giphyService.searchGifs(this.state.searchTerm);
-    this.setState({
-      gifUrl: resp.data.data[0].images.original.url,
-      gifUrls: [...resp.data.data]
-    });
-  };
+  //   const resp = await giphyService.searchGifs(this.state.searchTerm);
+  //   this.setState({
+  //     gifUrl: resp.data.data[0].images.original.url,
+  //     gifUrls: [...resp.data.data]
+  //   });
+  // };
 
-  getTrendingGifs = async () => {
-    const resp = await giphyService.getTrending();
+  // getTrendingGifs = async () => {
+  //   const resp = await giphyService.getTrending();
 
-    this.setState({
-      gifUrl: resp.data.data[0].images.original.url,
-      gifUrls: [...resp.data.data]
-    });
-  };
+  //   this.setState({
+  //     gifUrl: resp.data.data[0].images.original.url,
+  //     gifUrls: [...resp.data.data]
+  //   });
+  // };
 
   render() {
     return (
@@ -270,19 +280,6 @@ class Giphy extends React.Component {
             </GifRow>
           </GifWrapper>
         )}
-        <Input
-          value={this.state.searchTerm}
-          onChange={event => this.setState({ searchTerm: event.target.value })}
-        />
-        <Button onClick={this.searchGifs}>Search GIF</Button>
-        <Button onClick={this.getTrendingGifs}>Get trending gif</Button>
-        <Button onClick={() => this.setState({ gifUrls: [] })}>
-          Clear gifs
-        </Button>
-        {this.state.gifUrls.length &&
-          this.state.gifUrls.map(gif => (
-            <img key={gif.id} alt='gif' src={gif.images.original.url} />
-          ))}
       </React.Fragment>
     );
   }

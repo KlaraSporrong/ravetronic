@@ -78,7 +78,7 @@ class Player extends React.Component {
       light3: {
         id: 19,
         on: false,
-        color: 21845
+        color: 24200
       },
       tempoMs: 0,
       hueInit: false

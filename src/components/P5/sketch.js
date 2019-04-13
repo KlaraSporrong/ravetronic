@@ -61,9 +61,9 @@ export default function sketch(p) {
     // p.fill(255);
     // p.ellipse(width / 2, height / 2, amplitudeSize, amplitudeSize);
 
-    let trebSize = p.map(energy.trebEnergy / 100, 0, 1, 0, 200);
-    let midSize = p.map(energy.midEnergy / 100, 0, 1, 0, 200);
-    let bassSize = p.map(energy.bassEnergy / 100, 0, 1, 0, 200);
+    let trebSize = p.map(energy.trebEnergy / 100, 0, 1, 0, 250);
+    let midSize = p.map(energy.midEnergy / 100, 0, 1, 0, 250);
+    let bassSize = p.map(energy.bassEnergy / 100, 0, 1, 0, 250);
     p.fill(color1);
     p.ellipse(
       width / 6,
