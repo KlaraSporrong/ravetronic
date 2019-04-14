@@ -1,16 +1,15 @@
-import "babel-polyfill";
-import React, { Component } from "react";
-import ReactDOM from "react-dom";
-import { Route, BrowserRouter } from "react-router-dom";
-import { CssBaseline } from "@material-ui/core";
+import 'babel-polyfill';
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import { Route, BrowserRouter } from 'react-router-dom';
 
 // Our application routes
-import App from "./components/App/App.jsx";
+import App from './components/App/App.jsx';
 
 const appRoutes = [
   {
     exact: true,
-    path: "/",
+    path: '/',
     component: App
   }
 ];
@@ -48,5 +47,5 @@ ReactDOM.render(
   <BrowserRouter>
     <Routes />
   </BrowserRouter>,
-  document.getElementById("root")
+  document.getElementById('root')
 );
