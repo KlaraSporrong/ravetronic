@@ -10,7 +10,6 @@ import sketch from '../P5/sketch';
 
 import P5Wrapper from 'react-p5-wrapper';
 
-const hackfestUrl = 'src/components/Giphy/hackfest.png';
 const GifWrapper = styled.div`
   position: absolute;
   display: flex;
@@ -76,26 +75,25 @@ class Giphy extends React.Component {
     //   'https://media.giphy.com/media/l0IyfKMG8wCXoQCuA/giphy.gif',
     //   'https://media.giphy.com/media/M5P9En3lqGNlS/giphy.gif'
     // ];
-
+    this.hackfestUrl = 'build/hackfest.png';
     this.gifUrls = [
-      'src/components/Giphy/giphy1.gif',
-      'src/components/Giphy/giphy2.gif',
-      'src/components/Giphy/giphy3.gif',
-      'src/components/Giphy/giphy4.gif',
-      'src/components/Giphy/giphy5.gif',
-      'src/components/Giphy/giphy6.gif',
-      'src/components/Giphy/giphy7.gif',
-      'src/components/Giphy/giphy8.gif',
-      'src/components/Giphy/giphy9.gif',
-      'src/components/Giphy/giphy10.gif',
-      'src/components/Giphy/giphy11.gif'
+      'build/giphy1.gif',
+      'build/giphy2.gif',
+      'build/giphy3.gif',
+      'build/giphy4.gif',
+      'build/giphy5.gif',
+      'build/giphy6.gif',
+      'build/giphy7.gif',
+      'build/giphy8.gif',
+      'build/giphy9.gif',
+      'build/giphy10.gif',
+      'build/giphy11.gif'
     ];
   }
 
   componentDidMount() {
     this.initP5();
 
-    // this.setHalfTempoInterval();
     this.setFullTempoInterval();
     this.setDubbleTempoInterval();
     this.setGifInterval();
@@ -107,7 +105,6 @@ class Giphy extends React.Component {
       clearInterval(this.fullTempoInterval);
       clearInterval(this.dubbleTempoInterval);
 
-      // this.setHalfTempoInterval();
       this.setFullTempoInterval();
       this.setDubbleTempoInterval();
       this.setGifInterval();
@@ -115,19 +112,12 @@ class Giphy extends React.Component {
   }
 
   componentWillUnmount() {
-    // clearInterval(this.halfTempoInterval);
     clearInterval(this.fullTempoInterval);
     clearInterval(this.dubbleTempoInterval);
     clearInterval(this.gifInterval);
     clearInterval(this.audioInputStreamInterval);
+    window.removeEventListener('resize', this.setWindowSize);
   }
-
-  // setHalfTempoInterval = () => {
-  //   this.halfTempoInterval = setInterval(
-  //     this.handleHalfTempo,
-  //     this.props.tempo * 2
-  //   );
-  // };
 
   setFullTempoInterval = () => {
     this.fullTempoInterval = setInterval(
@@ -142,11 +132,6 @@ class Giphy extends React.Component {
       this.props.tempo / 2
     );
   };
-
-  // handleHalfTempo = () => {
-  //   const showGifHalfTempo = !this.state.showGifHalfTempo;
-  //   this.setState({ showGifHalfTempo });
-  // };
 
   handleFullTempo = () => {
     const showGifFullTempo = !this.state.showGifFullTempo;
@@ -229,15 +214,15 @@ class Giphy extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
-        <P5Wrapper
-          sketch={sketch}
-          frequencySpectrum={this.state.frequencySpectrum}
-          energy={this.state.energy}
-          amplitude={this.state.amplitude}
-          colorIndex={this.state.colorIndex}
-        />
-        {!this.props.isPaused && (
+      !this.props.isPaused && (
+        <React.Fragment>
+          <P5Wrapper
+            sketch={sketch}
+            frequencySpectrum={this.state.frequencySpectrum}
+            energy={this.state.energy}
+            amplitude={this.state.amplitude}
+            colorIndex={this.state.colorIndex}
+          />
           <GifWrapper>
             <GifRow>
               <Gif
@@ -257,9 +242,9 @@ class Giphy extends React.Component {
               />
             </GifRow>
             <GifRow>
-              <Gif show={true} url={hackfestUrl} height={'180px'} />
-              <Gif show={true} url={hackfestUrl} height={'180px'} />
-              <Gif show={true} url={hackfestUrl} height={'180px'} />
+              <Gif show={true} url={this.hackfestUrl} height={'180px'} />
+              <Gif show={true} url={this.hackfestUrl} height={'180px'} />
+              <Gif show={true} url={this.hackfestUrl} height={'180px'} />
             </GifRow>
             <GifRow>
               <Gif
@@ -279,8 +264,8 @@ class Giphy extends React.Component {
               />
             </GifRow>
           </GifWrapper>
-        )}
-      </React.Fragment>
+        </React.Fragment>
+      )
     );
   }
 }

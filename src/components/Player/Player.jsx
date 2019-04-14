@@ -2,11 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import { Button, H2 } from '../../styles/global.js';
 import spotifyService from '../../api/spotify/spotifyService.js';
-import hueService from '../../api/hue/hueService.js';
+
 import Giphy from '../Giphy/Giphy.jsx';
-import Hue from '../Hue/Hue.jsx';
 
 const propTypes = {
   authToken: PropTypes.string
@@ -65,31 +63,12 @@ class Player extends React.Component {
       trackTempo: 0,
       isPaused: true,
       beat: 0,
-      light1: {
-        id: 8,
-        on: false,
-        color: 43690
-      },
-      light2: {
-        id: 17,
-        on: false,
-        color: 0
-      },
-      light3: {
-        id: 19,
-        on: false,
-        color: 24200
-      },
-      tempoMs: 0,
-      hueInit: false
+      tempoMs: 0
     };
   }
 
   componentDidMount() {
     this.playerCheckInterval = setInterval(() => this.checkForPlayer(), 1000);
-    // this.playerStateInterval = setInterval(() => {
-    //   this.getPlayerState();
-    // }, 500);
   }
 
   checkForPlayer() {
@@ -220,25 +199,13 @@ class Player extends React.Component {
       return;
     }
     // this.getPlayerState();
-
-    const light1 = { ...this.state.light1 };
-    light1.on = !light1.on;
-    if (this.state.hueInit) {
-      hueService.switchLight(light1.id, light1.on, light1.color);
-    }
-    this.setState({ light1 });
   };
+
   handleBars = () => {
     if (this.state.isPaused) {
       return;
     }
     // this.getPlayerState();
-
-    const light2 = { ...this.state.light2 };
-    light2.on = !light2.on;
-
-    hueService.switchLight(light2.id, light2.on, light2.color);
-    this.setState({ light2 });
   };
 
   handleColor = () => {
@@ -250,11 +217,6 @@ class Player extends React.Component {
     } else {
       this.colorIndex = 0;
     }
-    const light3 = { ...this.state.light3 };
-    if (this.state.hueInit) {
-      hueService.setColor(light3.id, this.colors[this.colorIndex]);
-    }
-    this.setState({ light3 });
   };
 
   nextTrack = () => {
@@ -296,7 +258,6 @@ class Player extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <Hue onInit={this.handleHueInit} />
         {this.state.tempoMs ? (
           <Giphy isPaused={this.state.isPaused} tempo={this.state.tempoMs} />
         ) : (

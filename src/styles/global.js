@@ -7,12 +7,40 @@ export const GlobalStyle = createGlobalStyle`
   html, body {
     padding: 0;
     margin: 0;
-    background-color: #212121;
   }
   p {
     color: #e6e6e6;
   }
 
+  body {
+    animation: colorchange 10s infinite; /* animation-name followed by duration in seconds*/
+       /* you could also use milliseconds (ms) or something like 2.5s */
+    -webkit-animation: colorchange 10s infinite; /* Chrome and Safari */
+  }
+
+  @keyframes colorchange
+  {
+    0%   {background: #970FF2;}
+    14%  {background: #0597F2;}
+    28%  {background: #49D907;}
+    42%  {background: #FFC500;}
+    58%  {background: #F24607;}
+    72%  {background: #EA2F83;}
+    86%  {background: #E81400;}
+    100% {background: #970FF2;}
+  }
+
+  @-webkit-keyframes colorchange /* Safari and Chrome - necessary duplicate */
+  {
+    0%   {background: #970FF2;}
+    14%  {background: #0597F2;}
+    28%  {background: #49D907;}
+    42%  {background: #FFC500;}
+    58%  {background: #F24607;}
+    72%  {background: #EA2F83;}
+    86%  {background: #E81400;}
+    100% {background: #970FF2;}
+  }
 `;
 
 export const Button = styled.button`

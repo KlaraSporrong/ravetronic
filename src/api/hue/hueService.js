@@ -1,6 +1,9 @@
 import axios from 'axios';
 import { ipAddress, username } from './hueConstants.js';
-const url = `https://${ipAddress}/api/${username}`;
+const url =
+  process.env.NODE_ENV === 'production'
+    ? `https://${ipAddress}/api/${username}`
+    : `http://${ipAddress}/api/${username}`;
 
 function hueService() {
   const getLight = async lightId => {

@@ -12,9 +12,6 @@ import {
 import axios from 'axios';
 
 import Player from '../Player/Player.jsx';
-import P5 from '../P5/P5.jsx';
-import Hue from '../Hue/Hue.jsx';
-import Giphy from '../Giphy/Giphy.jsx';
 
 class App extends Component {
   constructor(props) {
@@ -85,18 +82,11 @@ class App extends Component {
         {/* ---- Spotify player ---- */}
         <Player authToken={this.state.authToken} />
 
-        {/* <Hue /> */}
         {this.state.authToken && !isEmpty(this.state.user) ? null : (
           <Button type='button' color='#1DB954' onClick={this.handleAuthFlow}>
             Sign in with Spotify
           </Button>
         )}
-
-        {/* ---- P5 ---- */}
-        {/* <P5 /> */}
-
-        {/* ---- GIPHY ----*/}
-        {/* <Giphy /> */}
       </React.Fragment>
     );
   }

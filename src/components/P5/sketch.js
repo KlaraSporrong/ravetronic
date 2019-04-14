@@ -1,11 +1,11 @@
 import 'p5/lib/addons/p5.sound';
 import 'p5/lib/addons/p5.dom';
 
-const width = window.innerWidth;
-const height = window.innerHeight;
-
+let width = window.innerWidth;
+let height = window.innerHeight;
 let energy = [];
 let spectrum = [];
+let canvasElem;
 let amplitude = 0;
 let colorIndex = 0;
 const colors = [
@@ -38,13 +38,18 @@ export default function sketch(p) {
       color2 = colors[(colorIndex + 1) % colors.length];
       color3 = colors[(colorIndex + 2) % colors.length];
     }
+    if (props.width) {
+      width = props.width;
+    }
+    if (props.height) {
+      height = props.height;
+    }
   };
 
   // -- Amplitude over time --//
 
   p.setup = () => {
-    const canvasElem = p.createCanvas(width, height);
-    console.log(canvasElem);
+    canvasElem = p.createCanvas(width, height);
     canvasElem.canvas.style.height = height;
     canvasElem.canvas.style.width = width;
     canvasElem.canvas.style.position = 'absolute';
@@ -54,12 +59,14 @@ export default function sketch(p) {
     p.rectMode(p.CENTER);
     p.colorMode(p.HSB);
   };
-  p.draw = () => {
-    p.background(0);
 
-    // const amplitudeSize = p.map(amplitude * 100, 0, 1, 0, 200);
-    // p.fill(255);
-    // p.ellipse(width / 2, height / 2, amplitudeSize, amplitudeSize);
+  p.draw = () => {
+    // p.background(0);
+    p.clear();
+
+    const amplitudeSize = p.map(amplitude * 20, 0, 1, 0, 200);
+    p.fill(255);
+    p.ellipse(width / 2, height / 2, amplitudeSize, amplitudeSize);
 
     let trebSize = p.map(energy.trebEnergy / 100, 0, 1, 0, 200);
     let midSize = p.map(energy.midEnergy / 100, 0, 1, 0, 200);
